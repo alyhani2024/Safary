@@ -12,7 +12,7 @@ using Persistence.Data;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240711194442_INIT")]
+    [Migration("20251109183628_INIT")]
     partial class INIT
     {
         /// <inheritdoc />
@@ -82,6 +82,7 @@ namespace Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<decimal>("HourPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ImageUrl")
@@ -219,14 +220,17 @@ namespace Persistence.Migrations
                     b.Property<int>("Adults")
                         .HasColumnType("int");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ApplicationUserId1")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastUpdatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("SelectedDate")
                         .HasColumnType("datetime2");
@@ -246,10 +250,6 @@ namespace Persistence.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("ApplicationUserId1");
 
                     b.HasIndex("TourName");
 
@@ -335,7 +335,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("BlogId");
 
-                    b.ToTable("TourBlog");
+                    b.ToTable("TourBlogs");
                 });
 
             modelBuilder.Entity("Domain.Entities.TourGuideReview", b =>
@@ -582,26 +582,18 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.SelectedTourGuide", b =>
                 {
-                    b.HasOne("Domain.Entities.ApplicationUser", null)
-                        .WithMany("Tourguides")
-                        .HasForeignKey("ApplicationUserId");
-
-                    b.HasOne("Domain.Entities.ApplicationUser", null)
-                        .WithMany("Tourists")
-                        .HasForeignKey("ApplicationUserId1");
-
                     b.HasOne("Domain.Entities.Tour", "Tour")
                         .WithMany("SelectedTourGuides")
                         .HasForeignKey("TourName");
 
                     b.HasOne("Domain.Entities.ApplicationUser", "Tourguide")
-                        .WithMany()
+                        .WithMany("Tourguides")
                         .HasForeignKey("TourguideId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.ApplicationUser", "Tourist")
-                        .WithMany()
+                        .WithMany("Tourists")
                         .HasForeignKey("TouristId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
